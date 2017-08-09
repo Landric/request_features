@@ -1,8 +1,10 @@
+import os
 import csv
 #import geograpy
 #from geotext import GeoText
 import nltk
 from nltk.corpus import stopwords
+from nltk.tag import StanfordNERTagger
 
 def analyse(filename):
     with open(filename, 'rb') as csvfile:
@@ -20,10 +22,8 @@ def analyse(filename):
 def nlp_preprocess(request):
     stop = stopwords.words('english')
     request = ' '.join([i for i in request.split() if i not in stop])
-    sentences = nltk.sent_tokenize(request)
-    sentences = [nltk.word_tokenize(sent) for sent in sentences]
-    sentences = [nltk.pos_tag(sent) for sent in sentences]
-    return sentences
+    st = StanfordNERTagger(os.path.join(os.getcwd(), 'stanford-ner', 'classifiers', 'english.muc.7class.distsim.crf.ser.gz'), os.path.join(os.getcwd(), 'stanford-ner', 'stanford-ner.jar'))
+    return st.tag(request.split()) 
 
 def extract_keywords(request):
     pass
@@ -41,31 +41,27 @@ def extract_locations(request):
     #print places.country_mentions
     #print places.nationalities
     #print places.countries
+    print nlp_preprocess(request)
 
-    
-    locs = []
-    sentences = nlp_preprocess(request)
-
-    for tagged_sentence in sentences:
-        for chunk in nltk.ne_chunk(tagged_sentence):
-            if type(chunk) == nltk.tree.Tree:
-                if chunk.label() == 'LOCATION' or chunk.label() == 'GPE' or chunk.label() == 'FACILITY':
-                    locs.append(' '.join([c[0] for c in chunk]))
-    return locs
+    for entity in nlp_preprocess(request):
+        if entity[1] == "LOCATION" or entity[1] == "GPE" or entity[1] == "FACILITY":
+            print entity[0]
 
 
 
 def extract_dates(request):
-    timedates = []
-    sentences = nlp_preprocess(request)
+    # timedates = []
+    # sentences = nlp_preprocess(request)
 
-    for tagged_sentence in sentences:
-        for chunk in nltk.ne_chunk(tagged_sentence):
-            if type(chunk) == nltk.tree.Tree:
-                if chunk.label() == 'DATE' or chunk.label() == 'TIME':
-                    timedates.append(' '.join([c[0] for c in chunk]))
-    return timedates
-
+    # for tagged_sentence in sentences:
+    #     for chunk in nltk.ne_chunk(tagged_sentence):
+    #         if type(chunk) == nltk.tree.Tree:
+    #             if chunk.label() == 'DATE' or chunk.label() == 'TIME':
+    #                 timedates.append(' '.join([c[0] for c in chunk]))
+    # return timedates
+    for entity in nlp_preprocess(request):
+        if entity[1] == "TIME" or entity[1] == "DATE":
+            print entity[0]
 
 def extract_fileformats(request):
     pass
