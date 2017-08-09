@@ -1,3 +1,4 @@
+import geograpy
 
 def analyse(filename):
 
@@ -7,24 +8,30 @@ def analyse(filename):
     extract_fileformats()
     extract_licences()
 
-def extract_keywords():
+def extract_keywords(request):
     pass
 
 
-def extract_locations():
+def extract_locations(request):
+    places = geograpy.get_place_context(text=request)
+
+    print places.countries
+    print places.regions
+    print places.cities
+    print places.other 
+
+
+def extract_dates(request):
     pass
 
 
-def extract_dates():
+def extract_fileformats(request):
     pass
 
 
-def extract_fileformats():
-    pass
-
-
-def extract_licences():
+def extract_licences(request):
     pass
 
 if __name__ == "__main__":
     analyse("requests.txt")
+
